@@ -1,0 +1,176 @@
+============================================================================================================================================
+============================================================================================================================================
+============================================================================================================================================
+============================================================================================================================================
+============================================================================================================================================
+
+TERMINAL BASH :
+
+===============
+
+
+SNAP :
+------
+snap list 								: faire la liste de toutes les appli snap installees sur le systeme
+snap remove nom							: desinstalle le soft selectionne
+sudo snap install blender --classic		: exemple d'install
+
+
+APT :
+-----
+apt list --installed | grep -i blender	: liste de toutes les install APT (supprimer le grep pour la liste entiere)
+sudo apt remove blender					: desinstalle le soft selectionne (a verifier)
+apt show onedrive						: affiche les informations sur un soft non installe (version...)
+sudo apt update							: faire la mise a jour de tous les paquets apt
+sudo apt upgrade -y						: faire la mise a jour de tous les paquets apt	
+sudo apt full-upgrade					: faire la mise a jour de tous les paquets apt
+time sudo apt install blender			: exemple d'install (le time signifie qu'il va chronometrer l'install)
+
+DIVERS :
+--------
+df  									: liste de tous les disques et la place restente
+uname -a 								: nom du noyau systeme
+history									: faire l'historique de toutes les commandes utilisees dans le terminal
+free -m									: verifier la memoire vive
+cat /etc/lsb-release					: information sur la version du systeme d'exploitation
+xrandr -s 1920x1080						: changer la resolution de l'ecran
+
+COMMANDE WC :
+-------------
+Permet de connaître le nombre de lignes, de mots, d’octets et de caractères dans des fichiers.
+wc -argument fichier
+-l										: Affiche le nombre de lignes d'un fichier.
+-w										: Affiche le nombre de mots d'un fichier.
+-c										: Affiche le nombre d'octets dans un fichier.
+-m										: Affiche le nombre de caractères d'un fichier.
+-L										: Affiche uniquement la longueur de la plus longue ligne d'un fichier.
+Sans arguments, les trois nombres indiqués sont le nombre de lignes, le nombre de mots et le nombre d’octets du fichier.
+ls | wc -l								: Affiche le nombre de fichiers + repertoires d'un path non recurcivement.
+ls -l | grep ^d | wc -l					: Renvoie le nombre de repertoires non recurcivement.
+ls -l | grep -v ^d | wc -l				: Renvoie le nombre de fichiers non recurcivement.
+
+
+COMMANDE GREP :
+---------------
+Rechercher une chaine de characteres, dans des fichiers, ou une liste donnee.
+grep projet /home/fabrice/test.txt		: renvoie les lignes du fichier contenant la chaine recherchee, ici 'projet'
+-i										: non sensible a la casse
+-n										: affiche le numero de la ligne du fichier
+-c										: renvoie le nombre de lignes concernees
+-r										: recherche de maniere recurcive dans le path
+-v										: inverser la recherche
+ls -l | grep ^d | wc -l					: Renvoie le nombre de repertoires non recurcivement.
+ls -l | grep -v ^d | wc -l				: Renvoie le nombre de fichiers non recurcivement.
+
+
+
+============================================================================================================================================
+============================================================================================================================================
+============================================================================================================================================
+============================================================================================================================================
+============================================================================================================================================
+
+SAMBA :
+
+======= 
+
+
+INSTALLATION :
+--------------
+ sudo apt-get update
+ sudo apt install samba
+
+
+CONFIGURATION:
+--------------
+1. Ouvrir : gedit /etc/samba/smb.conf
+2. Recherchez la ligne workgroup = WORKGROUP et remplacez « WORKGROUP » par le nom de votre groupe de travail.
+3. Indiquez le répertiore que vous souhaitez partager en ajoutant les sections comme celle-ci à la fin du fichier :
+	[NomDuPartage]
+		comment = Commentaire
+   		path = /chemin/vers/le/dossier
+   		read only = no
+   		writable = yes
+   		browseable = yes
+   		guest ok = no
+   		valid users = user1
+
+	– Path : c’est le chemin vers votre répertoire de partage
+	– valid users : Les utilisateurs ayant le droit d’accéder au partage.
+	– read only :
+		no: si vous souhaitez que les utilisateur aient le droit d’ajouter et de modifier les fichiers
+		yes: si vous souhaitez que les utilisateur aient uniquement le droit de lecture.
+		writable : les utilisateur ont le droit ou non d’ajouter et de modifier les fichiers
+		browseable : Indique si le partage doit être visible dans la liste des partages disponibles.
+
+
+TEST:
+-----
+Testez s’il y a des erreurs de syntax au niveau de fichier de configuration avec la commande testparm :
+ sudo testparm  /etc/samba/smb.conf
+(permet de voir si tout est ok, puis liste tous les partages)
+
+
+REDEMARAGE DU SERVICE :
+-----------------------
+ systemctl restart smbd
+ systemctl status smbd
+
+
+CONFIGURATION DE L'UTILISATEUR SAMBA :
+--------------------------------------
+Créez un utilisateur qui aura le droit d’accéder à votre partage en utilisant la commande suivante :
+ sudo smbpasswd -a user1
+Il faut ensuite accorder à cet utilisateur le droit de lire, modifier et éxécuter au niveau du dossier partagé en utilisant les ACL :
+ sudo setfacl -R -m "u:user1:rwx" /data
+
+
+CONNECTION AU PARTAGE SAMBA :
+-----------------------------
+Sur Linux pour accéder à un partage Samba nous allons utiliser smbclient.
+smbclient est un utilitaire qui permet d’accéder à un partege SMB depuis la ligne de commande. 
+Il n’est pas installé sur la pluspart des distribution. Voici la commande pour l’installer sur Ubuntu/Debian :
+ sudo apt install smbclient
+Voici la syntaxe de la commande smbclient pour accéder au partage :
+ sudo smbclient //adresse_IP_du serveru_ou_hostname/nom_du_partage -U nom_de_utilisateur
+Exemple :
+ smbclient //192.168.139.150/DATA -U user1
+
+
+MONTER LE PARTAGE :
+-------------------
+Installer le package cifs :
+ sudo apt install cifs-utils
+Créez ensuite le point de montage via lequel on peut accéder au partage réseau :
+ sudo mkdir /applis
+Par la suite faites monter le partage avec la commande ci-dessous on indiquant l’utilisateur samba:
+ sudo mount -t cifs -o username=user1 //192.168.139.150/DATA /applis
+-> Password for user1@//192.168.139.150/DATA:  ********
+Taper ensuite la commande df -hT :
+
+
+AUTRE :
+-------
+samba -V								: verifier la version de Samba
+
+
+
+
+============================================================================================================================================
+============================================================================================================================================
+============================================================================================================================================
+============================================================================================================================================
+============================================================================================================================================
+
+NORDVPN
+
+=======
+
+
+
+nordvpn login 								: se logger
+nordvpn connect     ou     nordvpn c		: se connecter
+nordvpn disconnect  ou     nordvpn d		: se deconnecter
+
+
+
